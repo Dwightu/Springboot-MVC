@@ -4,8 +4,11 @@ package com.ltp.gradesubmission;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +23,7 @@ public class GradeController {
     @GetMapping("/")
     public String gradeForm(Model model,@RequestParam(required = false) String id){
         Grade grade;
-        if(getGradeIndex(id)==-1000){
+        if(getGradeIndex(id)==Constants.NOT_FOUND){
             grade=new Grade();
         }else{
             grade=studentGrades.get(getGradeIndex(id));
@@ -35,9 +38,11 @@ public class GradeController {
         return "grades";
     }
     @PostMapping("/handleSubmit")
-    public String submitGrade(Grade grade){
+    public String submitGrade(@Valid Grade grade,BindingResult result){
+        System.out.println("Has errors?"+result.hasErrors());
+        if(result.hasErrors())return "form";
         int index=getGradeIndex(grade.getId());
-        if(index==-1000){
+        if(index==Constants.NOT_FOUND){
             studentGrades.add(grade);
         }else{
             studentGrades.set(index,grade);
@@ -50,6 +55,6 @@ public class GradeController {
                 return i;
             }
         }
-        return -1000;
+        return Constants.NOT_FOUND;
     }
 }
