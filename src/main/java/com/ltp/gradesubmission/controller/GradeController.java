@@ -1,5 +1,6 @@
 package com.ltp.gradesubmission.controller;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,8 +15,8 @@ import com.ltp.gradesubmission.service.GradeService;
 public class GradeController {
     // @GetMapping converts a method into a handler method
     // The handler method can accept GET requests.
-
-    GradeService gradeService=new GradeService();
+    @Autowired
+    GradeService gradeService;
 
     @GetMapping("/")
     public String gradeForm(Model model,@RequestParam(required = false) String id){
