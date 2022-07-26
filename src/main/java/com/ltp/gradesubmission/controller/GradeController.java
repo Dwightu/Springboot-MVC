@@ -1,4 +1,4 @@
-package com.ltp.gradesubmission;
+package com.ltp.gradesubmission.controller;
 
 
 import java.util.ArrayList;
@@ -13,28 +13,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.ltp.gradesubmission.Constants;
+import com.ltp.gradesubmission.Grade;
+import com.ltp.gradesubmission.repository.GradeRepository;
+
 // Entry point, Controller can only handle get request
 @Controller
 public class GradeController {
     // @GetMapping converts a method into a handler method
     // The handler method can accept GET requests.
-    List<Grade> studentGrades=new ArrayList<>();
+
+    GradeRepository gradeRepository=new GradeRepository();
 
     @GetMapping("/")
     public String gradeForm(Model model,@RequestParam(required = false) String id){
-        Grade grade;
-        if(getGradeIndex(id)==Constants.NOT_FOUND){
-            grade=new Grade();
-        }else{
-            grade=studentGrades.get(getGradeIndex(id));
-        }
-        System.out.println(id);
-        model.addAttribute("grade", grade);
+        int index = getGradeIndex(id);
+        model.addAttribute("grade", index == Constants.NOT_FOUND ? new Grade() : gradeRepository.getGrade(index));
         return "form";
     }
     @GetMapping("/grades")
     public String getGrades(Model model){
-        model.addAttribute("grade", studentGrades);
+        model.addAttribute("grade", gradeRepository.getGrades());
         return "grades";
     }
     @PostMapping("/handleSubmit")
@@ -43,15 +42,15 @@ public class GradeController {
         if(result.hasErrors())return "form";
         int index=getGradeIndex(grade.getId());
         if(index==Constants.NOT_FOUND){
-            studentGrades.add(grade);
+            gradeRepository.addGrade(grade);
         }else{
-            studentGrades.set(index,grade);
+            gradeRepository.updateGrade(grade, index);
         }
         return "redirect:/grades";
     }
     public Integer getGradeIndex(String id){
-        for(int i=0;i<studentGrades.size();i++){
-            if(studentGrades.get(i).getId().equals(id)){
+        for(int i=0;i<gradeRepository.getGrades().size();i++){
+            if(gradeRepository.getGrades().get(i).getId().equals(id)){
                 return i;
             }
         }
